@@ -12,17 +12,25 @@ class CameraSimulation:
 
     # Camera Parameters from Basler acA1920-155um
 
-    def __init__(self, iso=2000, shutter_speed=1/60, aperture=9, log=True):
+    def __init__(self, iso=2000, shutter_speed=1/60, aperture=9, log=True, camera_type="alpha6000"):
         self.iso = iso
         self.shutter_speed = shutter_speed
         self.aperture = aperture
         self.iso_factor = self.iso / 100
         self.log = log
-        self.qe = 0.7  # Quantum Efficiency
-        self.inverse_K = 8.4  # Inverse of the camera's gain factor
-        self.dark_noise_sigma = 6.8
-        self.saturation_capacity = 32700
-        self.abs_sensitivity_threshold = 10
+
+        if camera_type == "alpha6000":
+            self.qe = 1.0#0.7  # Quantum Efficiency
+            self.inverse_K = 0.425**-1  # Inverse of the camera's gain factor
+            self.dark_noise_sigma = 2.43
+            self.saturation_capacity = 9091 
+            self.abs_sensitivity_threshold = 10
+        else:
+            self.qe = 0.7  # Quantum Efficiency
+            self.inverse_K = 8.4  # Inverse of the camera's gain factor
+            self.dark_noise_sigma = 6.8
+            self.saturation_capacity = 32700
+            self.abs_sensitivity_threshold = 10
 
     def set_iso(self, iso):
         self.iso = iso
