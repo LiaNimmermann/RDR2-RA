@@ -96,7 +96,7 @@ def get_normalized_histogramm_of_matrix(matrix, val_range = [0.0, 1.0]):
         results[i][j][k] = sim_hist
     return results
 
-def compare_hist_matrix(sim_hists, cam_hists):
+def compare_hist_matrix(sim_hists, cam_hists, method = cv2.HISTCMP_BHATTACHARYYA):
     if not sim_hists.shape[0:2] == cam_hists.shape[0:2]:
         return None
     results = np.zeros((3,3,3, 1), dtype=np.float32)
@@ -104,18 +104,18 @@ def compare_hist_matrix(sim_hists, cam_hists):
         sim_hist = sim_hists[i][j][k]
         cam_hist = cam_hists[i][j][k]
 
-        metric = cv2.compareHist(sim_hist, cam_hist, cv2.HISTCMP_INTERSECT)
+        metric = cv2.compareHist(sim_hist, cam_hist, method)
         
         results[i][j][k] = metric
 
     return results
     
 
-def compare_hist_matrix_from_path(sim_path, cam_path):
+def compare_hist_matrix_from_path(sim_path, cam_path, method=cv2.HISTCMP_BHATTACHARYYA):
     print(cam_path)
     sim_hists = np.load(str(sim_path))
     cam_hists = np.load(str(cam_path))
     if not sim_hists.shape[0:2] == cam_hists.shape[0:2]:
         print("Shapes dont match")
         return None
-    return compare_hist_matrix(sim_hists, cam_hists)
+    return compare_hist_matrix(sim_hists, cam_hists, method=method)
