@@ -96,23 +96,13 @@ def get_normalized_histogramm_of_matrix(matrix, val_range = [0.0, 1.0]):
         results[i][j][k] = sim_hist
     return results
 
-def compare_images_matrix(sim_imgs, cam_imgs):
-    if not sim_imgs.shape[0:2] == cam_imgs.shape[0:2]:
+def compare_hist_matrix(sim_hists, cam_hists):
+    if not sim_hists.shape[0:2] == cam_hists.shape[0:2]:
         return None
     results = np.zeros((3,3,3, 1), dtype=np.float32)
     for i, j, k in tqdm(product(range(3), range(3), range(3)), total=27, desc="Comparing"):
-        sim_img = sim_imgs[i][j][k]
-        cam_img = cam_imgs[i][j][k]
-
-        sim_shape = sim_img.shape
-        sim_val_amount = np.prod(sim_shape)
-
-        cam_shape = cam_img.shape
-        cam_val_amount = np.prod(cam_shape)
-
-        sim_hist = cv2.calcHist([sim_img.flatten()], [0], None, [256], [0,256])/sim_val_amount
-
-        cam_hist = cv2.calcHist([cam_img.flatten()], [0], None, [256], [0,1])/cam_val_amount
+        sim_hist = sim_hists[i][j][k]
+        cam_hist = cam_hists[i][j][k]
 
         metric = cv2.compareHist(sim_hist, cam_hist, cv2.HISTCMP_INTERSECT)
         
@@ -120,3 +110,12 @@ def compare_images_matrix(sim_imgs, cam_imgs):
 
     return results
     
+
+def compare_hist_matrix_from_path(sim_path, cam_path):
+    print(cam_path)
+    sim_hists = np.load(str(sim_path))
+    cam_hists = np.load(str(cam_path))
+    if not sim_hists.shape[0:2] == cam_hists.shape[0:2]:
+        print("Shapes dont match")
+        return None
+    return compare_hist_matrix(sim_hists, cam_hists)

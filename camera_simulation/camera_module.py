@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch import pi
 import math
 import numpy as np
 
@@ -25,9 +26,13 @@ class CameraModule(nn.Module):
 
 
     def forward(self,x):
-        # Input light depending on aperture
-        x = (math.pi * x) / 4 * self.aperture ** 2
+        # Enforce positive values only
+        x_min = np.min(x)
+        if min<0:
+            x -= x_min
 
+        # Input light depending on aperture
+        x = (pi * x) / 4 * self.aperture ** 2
 
         # Input light depending on exposure time
         x = x * self.shutter_speed
