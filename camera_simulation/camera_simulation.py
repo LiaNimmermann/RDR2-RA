@@ -66,13 +66,15 @@ class CameraSimulation:
             print(f"Standard deviation of pixel values: {image.std()}")
 
     def input_to_illuminance(self, image):
+        min = np.min(image)
+        if min<0:
+            image -= min
         illuminance = (math.pi * image) / 4 * self.aperture ** 2
         return illuminance
 
     def illuminance_to_photons_with_shot_noise(self, illuminance):
         # Convert illuminance to photons based on shutter speed
         exposure_time = self.shutter_speed
-
         # Add Photon noise using Poisson distribution
         photons = np.random.poisson(illuminance * exposure_time)
 
@@ -115,7 +117,9 @@ class CameraSimulation:
         # Simulate exposure based on ISO, shutter speed, and aperture
         #print("*"*15 + " Input Stats " + "*"*15)
         self.log_image_stats(image)
+
         illuminance = self.input_to_illuminance(image)
+        self.log_image_stats(illuminance)
         #print("*"*15 + " Illuminance Stats " + "*"*15)
         #self.log_image_stats(illuminance)
         photons = self.illuminance_to_photons_with_shot_noise(illuminance)
