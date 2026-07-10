@@ -5,23 +5,24 @@ import cv2
 import numpy as np
 from itertools import product
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 def load_arw_file(path: Path, norm_factor=(1/65535)):
     with rawpy.imread(str(path)) as raw:
         rgb = raw.postprocess(
-            use_camera_wb=False,
+            use_camera_wb=True,
             use_auto_wb=False,
             no_auto_bright=True,
             output_bps=16,
             gamma=(1, 1),      # linear
             bright=1.0,
             user_flip=0,
-            demosaic_algorithm=rawpy.DemosaicAlgorithm.AHD
+            demosaic_algorithm=rawpy.DemosaicAlgorithm.DCB # type: ignore
         )
     normalized = rgb * norm_factor
     return normalized
 
-def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = None):
+def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = None, extension = "ARW", hw=(4024, 6024)):
     if isos is None:
         isos = ["250", "2000", "16000"]
     if fs is None:
@@ -29,7 +30,8 @@ def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = No
     if shs is None:
         shs = ["1-4", "1-60", "1-1000"]
 
-    images = np.zeros((3,3,3, 4024, 6024, 3))
+
+    images = np.zeros((3,3,3, hw[0], hw[1], 3))
 
     total = len(isos) * len(fs) * len(shs)
 
@@ -41,8 +43,11 @@ def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = No
         iso = isos[i]
         f = fs[j]
         sh = shs[k]
-        path = base_path / f"ISO{iso}_F{f}_sh{sh}.ARW"
-        img = load_arw_file(path)
+        path = base_path / f"ISO{iso}_F{f}_sh{sh}.{extension}"
+        if extension == "ARW":
+            img = load_arw_file(path)
+        else:
+            img = plt.imread(path)
         images[i][j][k] = img
 
     return images
