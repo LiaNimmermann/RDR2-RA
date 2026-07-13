@@ -3,6 +3,7 @@ import numpy as np
 
 aperture_values = [5.0, 9.0, 16.0]
 shutter_speed_values = [1/4, 1/60, 1/1000]
+shutter_speed_values_str = ["1/4", "1/60", "1/1000"]
 iso_values = [250, 2000, 16000]
 
 class CameraSimulation:
