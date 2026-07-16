@@ -3,7 +3,7 @@ import exifread
 
 from pathlib import Path  # import Path from pathlib module
 
-directory = Path('D:\kamera_bilder')  # set directory path
+directory = Path('H:/gedruckt')  # set directory path
 
 for subdir in directory.iterdir():  
     for file in subdir.iterdir():

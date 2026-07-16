@@ -13,7 +13,7 @@ class CameraSimulation:
 
     # Camera Parameters from Basler acA1920-155um
 
-    def __init__(self, iso=2000, shutter_speed=1/60, aperture=9, log=True, camera_type="alpha6000"):
+    def __init__(self, iso=2000, shutter_speed=1/60, aperture=9, log=True, camera_type="alpha6000", ):
         self.iso = iso
         self.shutter_speed = shutter_speed
         self.aperture = aperture
@@ -78,9 +78,7 @@ class CameraSimulation:
         exposure_time = self.shutter_speed
         # Add Photon noise using Poisson distribution
         photons = np.random.poisson(illuminance * exposure_time)
-
         return photons
-    
     
     def photons_to_electrons(self, photons):
         # Apply quantum efficiency (QE) to convert photons to electrons

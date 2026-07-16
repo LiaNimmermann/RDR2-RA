@@ -68,6 +68,7 @@ def simulate_images(hdr_path: Path, depth_path: Path | None = None, cam: sim.Cam
         raise ValueError(f"Could not load input image from {hdr_path}")
     
     input_img = input_img * input_factor 
+    input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB) #  type: ignore
     input_depth = None #cv2.imread(depth_path, flags=cv2.IMREAD_ANYDEPTH + cv2.IMREAD_COLOR)
 
     images = np.zeros((3,3,3, 1440, 2560, 3), dtype=np.float32)
