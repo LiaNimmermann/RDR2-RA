@@ -22,16 +22,17 @@ def load_arw_file(path: Path, norm_factor=(1/65535)):
     normalized = rgb * norm_factor
     return normalized
 
-def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = None, extension = "ARW", hw=(4024, 6024)):
+def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = None, extension = "ARW", hw=(4024, 6024), target_hw=None):
     if isos is None:
         isos = ["250", "2000", "16000"]
     if fs is None:
         fs = ["5", "9", "16"]
     if shs is None:
         shs = ["1-4", "1-60", "1-1000"]
+    if target_hw is None:
+        target_hw = hw
 
-
-    images = np.zeros((3,3,3, hw[0], hw[1], 3))
+    images = np.zeros((3,3,3, target_hw[0], target_hw[1], 3))
 
     total = len(isos) * len(fs) * len(shs)
 
@@ -45,9 +46,11 @@ def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = No
         sh = shs[k]
         path = base_path / f"ISO{iso}_F{f}_sh{sh}.{extension}"
         if extension == "ARW":
+            print(extension)
             img = load_arw_file(path)
         else:
             img = plt.imread(path)
+        img = cv2.resize(img,(target_hw[1], target_hw[0]))
         images[i][j][k] = img
 
     return images
