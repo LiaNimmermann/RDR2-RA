@@ -40,6 +40,7 @@ def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = No
         product(range(len(isos)), range(len(fs)), range(len(shs))),
         total=total,
         desc="Load Files to Matrix",
+        leave=False,
     ):
         iso = isos[i]
         f = fs[j]
@@ -51,10 +52,9 @@ def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = No
             img = plt.imread(path)
         img = cv2.resize(img,(target_hw[1], target_hw[0]))
         images[i][j][k] = img
-
     return images
     
-def simulate_images(hdr_path: Path, depth_path: Path | None = None, cam: sim.CameraSimulation | None = None, isos = None, fs = None, shs = None, input_factor = 5000):
+def simulate_images(hdr_path: Path, depth_path: Path | None = None, cam: sim.CameraSimulation | None = None, isos = None, fs = None, shs = None, input_factor = 5000, bar=True):
     if isos is None:
         isos = sim.iso_values
     if fs is None:
@@ -82,6 +82,7 @@ def simulate_images(hdr_path: Path, depth_path: Path | None = None, cam: sim.Cam
         product(range(len(isos)), range(len(fs)), range(len(shs))),
         total=total, 
         desc="Simulate Images",
+        leave=False
     ):
         iso = isos[i]
         f = fs[j]
@@ -95,7 +96,7 @@ def get_normalized_histogramm_of_matrix(matrix, val_range = [0.0, 1.0]):
     if matrix.dtype is np.float64:
         matrix = matrix.astype(np.float32)
     results = np.zeros((3,3,3, 256, 1), dtype=np.float32)
-    for i, j, k in tqdm(product(range(3), range(3), range(3)), total=27, desc="Get Histogramms"):
+    for i, j, k in tqdm(product(range(3), range(3), range(3)), total=27, desc="Get Histogramms", leave=False):
         img = matrix[i][j][k]
 
         shape = img.shape
@@ -108,7 +109,7 @@ def compare_hist_matrix(sim_hists, cam_hists, method = cv2.HISTCMP_BHATTACHARYYA
     if not sim_hists.shape[0:2] == cam_hists.shape[0:2]:
         return None
     results = np.zeros((3,3,3, 1), dtype=np.float32)
-    for i, j, k in tqdm(product(range(3), range(3), range(3)), total=27, desc="Comparing"):
+    for i, j, k in tqdm(product(range(3), range(3), range(3)), total=27, desc="Comparing", leave=False):
         sim_hist = sim_hists[i][j][k]
         cam_hist = cam_hists[i][j][k]
 
@@ -120,7 +121,7 @@ def compare_hist_matrix(sim_hists, cam_hists, method = cv2.HISTCMP_BHATTACHARYYA
     
 
 def compare_hist_matrix_from_path(sim_path, cam_path, method=cv2.HISTCMP_BHATTACHARYYA):
-    print(cam_path)
+    #print(cam_path)
     sim_hists = np.load(str(sim_path))
     cam_hists = np.load(str(cam_path))
     if not sim_hists.shape[0:2] == cam_hists.shape[0:2]:
