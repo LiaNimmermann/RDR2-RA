@@ -46,7 +46,6 @@ def load_image_files_to_matrix(base_path: Path, isos = None, fs = None, shs = No
         sh = shs[k]
         path = base_path / f"ISO{iso}_F{f}_sh{sh}.{extension}"
         if extension == "ARW":
-            print(extension)
             img = load_arw_file(path)
         else:
             img = plt.imread(path)

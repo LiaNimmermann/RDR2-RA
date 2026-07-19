@@ -21,7 +21,7 @@ class CameraSimulation:
         self.log = log
 
         if camera_type == "alpha6000":
-            self.qe = 1.0#0.7  # Quantum Efficiency
+            self.qe =0.5 #1.0#0.7  # Quantum Efficiency
             self.inverse_K = 0.425**-1  # Inverse of the camera's gain factor
             self.dark_noise_sigma = 2.43
             self.saturation_capacity = 9091 
@@ -78,11 +78,12 @@ class CameraSimulation:
         exposure_time = self.shutter_speed
         # Add Photon noise using Poisson distribution
         photons = np.random.poisson(illuminance * exposure_time)
+
         return photons
     
     def photons_to_electrons(self, photons):
         # Apply quantum efficiency (QE) to convert photons to electrons
-        quantum_efficiency = 0.7  # Example QE value
+        quantum_efficiency = self.qe  # Example QE value
         electrons = photons * quantum_efficiency
         return electrons
     
@@ -102,14 +103,12 @@ class CameraSimulation:
 
     def clip_electrons(self, x):
         # Clip electrons to the maximum capacity of the sensor
-        max_electrons = 10000  # Example maximum capacity
-        clipped_electrons = np.clip(x, 0, max_electrons)
+        clipped_electrons = np.clip(x, 0, self.saturation_capacity)
         return clipped_electrons
     
     def quantize_to_8bit(self, x):
         # Quantize electrons to 8-bit values
-        max_electrons = 10000  # Example maximum capacity
-        quantized_image = (x / max_electrons * 255).astype(np.uint8)
+        quantized_image = (x / self.saturation_capacity * 255).astype(np.uint8)
         return quantized_image
 
     def simulate_image(self, image, depth_map):
