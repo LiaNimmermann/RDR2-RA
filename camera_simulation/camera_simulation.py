@@ -13,7 +13,7 @@ class CameraSimulation:
 
     # Camera Parameters from Basler acA1920-155um
 
-    def __init__(self, iso=2000, shutter_speed=1/60, aperture=9, log=True, camera_type="alpha6000", ):
+    def __init__(self, iso=2000, shutter_speed=1/60, aperture=9, log=True, camera_type="alpha6000"):
         self.iso = iso
         self.shutter_speed = shutter_speed
         self.aperture = aperture
@@ -87,12 +87,6 @@ class CameraSimulation:
         electrons = photons * quantum_efficiency
         return electrons
     
-    def add_dark_noise(self, x):
-        # Simulate dark noise using Gaussian distribution with dark_noise_sigma
-        read_noise = np.random.normal(0, np.sqrt(self.dark_noise_sigma), size=x.shape)  # Assuming a read noise of 5 electrons
-        noisy_electrons = x + read_noise
-        return noisy_electrons
-    
     def apply_iso(self, x):
         # Adjust electrons based on ISO
         adjusted_electrons = x * self.iso_factor
@@ -100,6 +94,13 @@ class CameraSimulation:
 
     def apply_system_gain(self, x):
         return x / self.inverse_K
+    
+    def add_dark_noise(self, x):
+        # Simulate dark noise using Gaussian distribution with dark_noise_sigma
+        read_noise = np.random.normal(0, np.sqrt(self.dark_noise_sigma), size=x.shape)  # Assuming a read noise of 5 electrons
+        noisy_electrons = x + read_noise
+        return noisy_electrons
+    
 
     def clip_electrons(self, x):
         # Clip electrons to the maximum capacity of the sensor
@@ -123,12 +124,12 @@ class CameraSimulation:
         photons = self.illuminance_to_photons_with_shot_noise(illuminance)
        # print("*"*15 + " Photon Stats " + "*"*15)
         #self.log_image_stats(photons)
-        electrons = self.photons_to_electrons(photons)
+        x = self.photons_to_electrons(photons)
         #print("*"*15 + " Electron Stats " + "*"*15)
-        self.log_image_stats(electrons)
-        x = self.add_dark_noise(electrons)
+        self.log_image_stats(x)
         x = self.apply_system_gain(x)
         x = self.apply_iso(x)
+        x = self.add_dark_noise(x)
         x = self.clip_electrons(x)
         x = self.quantize_to_8bit(x)
        # print("*"*15 + " Final Stats " + "*"*15)
